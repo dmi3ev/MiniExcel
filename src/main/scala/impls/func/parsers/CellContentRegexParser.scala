@@ -3,6 +3,8 @@ package impls.func.parsers
 import impls.func._
 import models.CellContentParser
 
+import scala.util.Try
+
 class CellContentRegexParser extends CellContentParser {
 
   import scala.util.parsing.combinator._
@@ -13,7 +15,7 @@ class CellContentRegexParser extends CellContentParser {
 
     // TODO некоторые адреса ячеек недопустимые, например, A0
     def cellReference: Parser[CellReference] =
-      """[A-Za-z][0-9]""".r ^^ { r => CellReference(CellAddress(r.toUpperCase)) }
+      """[A-Za-z][0-9]""".r ^^ { r => CellReference(A1StyleAddress(r.toUpperCase)) }
 
     val operationSign = """[+-\\*/]""".r
 
@@ -43,7 +45,7 @@ class CellContentRegexParser extends CellContentParser {
     if (in.value == "") {
       Nothing
     } else {
-      val result = parser.parseAll(parser.cellValue, in.value)
+      val result = Try(parser.parseAll(parser.cellValue, in.value).get)
       result.getOrElse(InputError)
     }
   }

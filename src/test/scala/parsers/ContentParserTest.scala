@@ -24,11 +24,23 @@ class ContentParserTest extends FunSuite {
   }
 
   test("=C2") {
-    assert(parser.convert(CellValue("=C2")) == CellReference(CellAddress("C2")))
+    assert(parser.convert(CellValue("=C2")) == CellReference(A1StyleAddress("C2")))
   }
 
   test("=c2") {
-    assert(parser.convert(CellValue("=c2")) == CellReference(CellAddress("C2")))
+    assert(parser.convert(CellValue("=c2")) == CellReference(A1StyleAddress("C2")))
+  }
+
+  test("=c23") {
+    assert(parser.convert(CellValue("=c23")) == InputError)
+  }
+
+  test("=c0") {
+    assert(parser.convert(CellValue("=c0")) == InputError)
+  }
+
+  test("=ac2") {
+    assert(parser.convert(CellValue("=ac2")) == InputError)
   }
 
   test("c2") {
@@ -69,8 +81,8 @@ class ContentParserTest extends FunSuite {
   }
 
   test("=A2*B1") {
-    assert(parser.convert(CellValue("=A2*B1")) == Expression(models.Prod, CellReference(CellAddress("A2")),
-      CellReference(CellAddress("B1"))))
+    assert(parser.convert(CellValue("=A2*B1")) == Expression(models.Prod, CellReference(A1StyleAddress("A2")),
+      CellReference(A1StyleAddress("B1"))))
   }
 
   test("=A1+B1*C1/5") {
@@ -79,8 +91,8 @@ class ContentParserTest extends FunSuite {
         Expression(models.Div,
           Expression(models.Prod,
             Expression(models.Sum,
-              CellReference(CellAddress("A1")), CellReference(CellAddress("B1"))),
-            CellReference(CellAddress("C1"))),
+              CellReference(A1StyleAddress("A1")), CellReference(A1StyleAddress("B1"))),
+            CellReference(A1StyleAddress("C1"))),
           PositiveInteger(5))
     }
   }

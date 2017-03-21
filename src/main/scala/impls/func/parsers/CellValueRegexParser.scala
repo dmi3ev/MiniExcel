@@ -1,11 +1,11 @@
 package impls.func.parsers
 
 import impls.func._
-import models.CellContentParser
+import models.parsers.CellValueToCellExpression
 
 import scala.util.Try
 
-class CellContentRegexParser extends CellContentParser {
+object CellValueRegexParser extends CellValueToCellExpression {
 
   import scala.util.parsing.combinator._
 
@@ -19,7 +19,7 @@ class CellContentRegexParser extends CellContentParser {
 
     val operationSign = """[+-\\*/]""".r
 
-    def term: Parser[FuncCellExpression] = cellReference | nonNegativeNumber
+    def term: Parser[CellExpression] = cellReference | nonNegativeNumber
 
     def operation: Parser[models.Operation] = operationSign ^^ {
       case "+" => models.Sum
@@ -31,12 +31,12 @@ class CellContentRegexParser extends CellContentParser {
     // TODO "printable character"
     def text = "'" ~> ".*".r ^^ { t => Text(t) }
 
-    def expression: Parser[FuncCellExpression] = term ~ rep(operation ~ term) ^^ {
+    def expression: Parser[CellExpression] = term ~ rep(operation ~ term) ^^ {
       case term ~ Nil => term
       case left ~ list => list.foldLeft(left) { case (left, operation ~ right) => Expression(operation, left, right) }
     }
 
-    def cellValue: Parser[FuncCellExpression] = nonNegativeNumber | text | "=" ~> expression
+    def cellValue: Parser[CellExpression] = nonNegativeNumber | text | "=" ~> expression
   }
 
   private val parser = new Parser

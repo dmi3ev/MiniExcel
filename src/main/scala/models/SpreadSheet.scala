@@ -1,13 +1,17 @@
 package models
 
-trait Spreadsheet {
+trait Spreadsheet[T <: CellContent] {
   val height: Int
   val width: Int
+  val cells: Spreadsheet.Rows[T]
+}
 
-  def getCell(address: CellAddress): CellContent
+trait FindCellFunction {
+  def findCell(address: CellAddress): CellExpression
+}
 
-  def print
-
-  require(height > 0, "Spreadsheet height must be greater than zero")
-  require(width > 0, "Spreadsheet width must be greater than zero")
+object Spreadsheet {
+  type Row[T <: CellContent] = Iterable[T]
+  type Rows[T <: CellContent] = Iterable[Row[T]]
+  type findCellFunction = CellAddress => CellExpression
 }

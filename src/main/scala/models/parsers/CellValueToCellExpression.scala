@@ -1,5 +1,5 @@
-package models
+package models.parsers
 
-trait CellContentParser {
+trait CellValueToCellExpression {
   def convert(in: models.CellValue): models.CellExpression
 }

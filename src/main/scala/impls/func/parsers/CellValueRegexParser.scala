@@ -41,7 +41,7 @@ object CellValueRegexParser extends CellValueToCellExpression {
 
   private val parser = new Parser
 
-  override def convert(in: models.CellValue): models.CellExpression = {
+  override def convert(in: models.CellUserValue): models.CellExpression = {
     if (in.value == "") {
       Nothing
     } else {

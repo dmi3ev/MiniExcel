@@ -1,10 +1,10 @@
 package impls.func.parsers
 
-import impls.func.CellValue
+import impls.func.CellUserValue
 
 object SourceToFuncCellValues extends models.parsers.SourceToCellValues {
 
-  override def convert(source: String): models.CellValue = {
-    CellValue(source)
+  override def convert(source: String): models.CellUserValue = {
+    CellUserValue(source)
   }
 }

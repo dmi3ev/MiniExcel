@@ -2,13 +2,10 @@ package app
 
 import models.MiniExcel
 
-import scala.io.Source
-
 object LoaderInputData {
   val separator = "\\t"
 
-  def load(source: Source): MiniExcel.Input = {
-    val iterator = source.getLines
+  def load(iterator: java.util.Iterator[String]): MiniExcel.Input = {
     val firstLine = iterator.next
 
     val (height, width) = firstLine split separator map (_.toInt) match {
@@ -21,6 +18,5 @@ object LoaderInputData {
       assert(row.length == width, s"Not correct the spreadsheet data in line $i")
       row.toIterable
     }
-
   }
 }

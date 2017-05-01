@@ -1,11 +1,11 @@
 package impls.func.parsers
 
 import impls.func._
-import models.parsers.CellValueToCellExpression
 
 import scala.util.Try
+import scala.util.matching.Regex
 
-object CellValueRegexParser extends CellValueToCellExpression {
+object CellUserValueRegexParser {
 
   import scala.util.parsing.combinator._
 
@@ -17,7 +17,7 @@ object CellValueRegexParser extends CellValueToCellExpression {
     def cellReference: Parser[CellReference] =
       """[A-Za-z][0-9]""".r ^^ { r => CellReference(A1StyleAddress(r.toUpperCase)) }
 
-    val operationSign = """[+-\\*/]""".r
+    val operationSign: Regex = """[+-\\*/]""".r
 
     def term: Parser[CellExpression] = cellReference | nonNegativeNumber
 
@@ -29,11 +29,11 @@ object CellValueRegexParser extends CellValueToCellExpression {
     }
 
     // TODO "printable character"
-    def text = "'" ~> ".*".r ^^ { t => Text(t) }
+    def text: Parser[Text] = "'" ~> ".*".r ^^ { t => Text(t) }
 
     def expression: Parser[CellExpression] = term ~ rep(operation ~ term) ^^ {
       case term ~ Nil => term
-      case left ~ list => list.foldLeft(left) { case (left, operation ~ right) => Expression(operation, left, right) }
+      case expr ~ list => list.foldLeft(expr) { case (left, operation ~ right) => Expression(operation, left, right) }
     }
 
     def cellValue: Parser[CellExpression] = nonNegativeNumber | text | "=" ~> expression
@@ -41,12 +41,13 @@ object CellValueRegexParser extends CellValueToCellExpression {
 
   private val parser = new Parser
 
-  override def convert(in: models.CellUserValue): models.CellExpression = {
-    if (in.value == "") {
+  def convert(userValue: models.CellUserValue): models.CellExpression = {
+    if (userValue.value == "") {
       Nothing
     } else {
-      val result = Try(parser.parseAll(parser.cellValue, in.value).get)
-      result.getOrElse(InputError)
+      Try {
+        parser.parseAll(parser.cellValue, userValue.value).get
+      } getOrElse InputError
     }
   }
 }

@@ -1,21 +1,21 @@
 package impls.func
 
-import impls.func.parsers.{CellValueRegexParser, SourceToFuncCellValues}
-import models.MiniExcel
 import models.MiniExcel._
 
-case class FuncMiniExcel(input: Input) extends MiniExcel(input) {
+case class FuncMiniExcel(input: Input) extends models.MiniExcel(input) {
 
-  override def createInputSpreadsheet: ValueSpreadsheet = {
+  override def createInputSpreadsheet(input: Input): InputSpreadsheet = {
     val cells = input map { row =>
-      row map SourceToFuncCellValues.convert
+      row map CellUserValue
     }
     ValueSpreadsheet(cells)
   }
 
   override def createExpressionSpreadsheet(spreadsheet: InputSpreadsheet): ExpSpreadsheet = {
     val cells = spreadsheet.cells map { row =>
-      row map CellValueRegexParser.convert
+      row map { userValue =>
+        CellExpression(userValue)
+      }
     }
     ExpressionSpreadsheet(cells)
   }
@@ -23,7 +23,7 @@ case class FuncMiniExcel(input: Input) extends MiniExcel(input) {
   override def createOutputSpreadsheet(spreadsheet: ExpSpreadsheet): OutputSpreadsheet = {
     val cells = spreadsheet.cells map { row =>
       row map { exp =>
-        exp.getCellResultValue(spreadsheet.findCell)
+        exp getCellResultValue spreadsheet.findCell
       }
     }
     ResultSpreadsheet(cells)

@@ -7,10 +7,7 @@ trait Spreadsheet[T <: CellContent] {
 
   def printCells(): Unit = {
     cells foreach { row =>
-      row foreach { cell =>
-        print(s"""$cell\t""")
-      }
-      println
+      println(row mkString Spreadsheet.cellSeparator)
     }
   }
 }
@@ -19,6 +16,7 @@ object Spreadsheet {
   type Row[T <: CellContent] = Iterable[T]
   type Rows[T <: CellContent] = Iterable[Row[T]]
   type findCellFunction = CellAddress => CellExpression
+  val cellSeparator = "\t"
 }
 
 trait FindCellFunction {

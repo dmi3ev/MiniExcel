@@ -4,14 +4,14 @@ abstract class MiniExcel(input: MiniExcel.Input) {
 
   import MiniExcel._
 
-  def createInputSpreadsheet: InputSpreadsheet
+  def createInputSpreadsheet(input: Input): InputSpreadsheet
 
   def createExpressionSpreadsheet(spreadsheet: InputSpreadsheet): ExpSpreadsheet
 
   def createOutputSpreadsheet(spreadsheet: ExpSpreadsheet): OutputSpreadsheet
 
   final def calc(): Unit = {
-    val inputSpreadsheet = createInputSpreadsheet
+    val inputSpreadsheet = createInputSpreadsheet(input)
     val spreadsheet = createExpressionSpreadsheet(inputSpreadsheet)
     val outputSpreadsheet = createOutputSpreadsheet(spreadsheet)
     outputSpreadsheet.printCells()

@@ -10,6 +10,7 @@ case class A1StyleAddress(address: String) extends models.CellAddress {
   require(rowChar >= A1StyleAddress.Row.first && rowChar <= A1StyleAddress.Row.last, "Row address is invalid")
 
   override def row: Int = rowChar - A1StyleAddress.Row.first.toInt
+
   override def col: Int = colChar.toInt - A1StyleAddress.Column.first.toInt
 }
 

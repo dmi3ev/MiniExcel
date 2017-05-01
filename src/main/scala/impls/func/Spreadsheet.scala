@@ -1,7 +1,7 @@
 package impls.func
 
 import models.Spreadsheet.Rows
-import models.{CellContent, FindCellFunction}
+import models.{ CellContent, FindCellFunction }
 
 abstract class FuncSpreadsheet[T <: CellContent](cells: Rows[T]) extends models.Spreadsheet[T] {
   val height: Int = cells.size

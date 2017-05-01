@@ -1,11 +1,11 @@
 package parsers
 
 import impls.func._
-import impls.func.parsers.CellValueRegexParser
+import impls.func.parsers.CellUserValueRegexParser
 import org.scalatest.FunSuite
 
 class ContentParserTest extends FunSuite {
-  val parser = CellValueRegexParser
+  val parser = CellUserValueRegexParser
 
   test("Empty cell value") {
     assert(parser.convert(CellUserValue("")) == Nothing)

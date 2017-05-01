@@ -1,7 +1,12 @@
 package impls.func
 
+import impls.func.parsers.CellUserValueRegexParser
 import models.Spreadsheet.findCellFunction
-import models.{Calculated, CellError, Operation}
+import models.{ CalculatedValue, CellError, Operation }
+
+object CellExpression {
+  def apply(userValue: models.CellUserValue): models.CellExpression = CellUserValueRegexParser.convert(userValue)
+}
 
 sealed trait CellExpression extends models.CellExpression {
   override def toString: String = this match {
@@ -18,8 +23,15 @@ sealed trait CellExpression extends models.CellExpression {
     case error: CellError => ErrorResult(error.message)
     case PositiveInteger(int) => IntResult(int)
     case Text(text) => TextResult(text)
-    case r: CellReference => r.find(findFunc)
-    case e: Expression => e.calc(findFunc).getCellResultValue(findFunc)
+    case CellReference(address) => findFunc(address).getCellResultValue(findFunc)
+    case e: Expression => e.calc(findFunc).toCellExpression.getCellResultValue(findFunc)
+  }
+
+  override def getCalculatedValue(findFunc: findCellFunction): models.CalculatedValue = this match {
+    case i: PositiveInteger => i
+    case CellReference(address) => findFunc(address).getCalculatedValue(findFunc)
+    case e: Expression => e.calc(findFunc)
+    case _ => NotCalculatedValue
   }
 }
 
@@ -37,44 +49,36 @@ case object CalculatedError extends CellExpression with CellError {
   val message = "Calculated Error"
 }
 
-case class PositiveInteger(int: Int) extends CellExpression with Calculated {
-  require(int >= 0)
+case class PositiveInteger(int: Int) extends CellExpression with CalculatedValue {
 
-  def +(y: models.CellExpression): models.CellExpression = y match {
+  def +(y: models.CalculatedValue): models.CalculatedValue = y match {
     case PositiveInteger(value) => PositiveInteger(int + value)
-    case _ => CalculatedError
+    case _ => NotCalculatedValue
   }
 
-  def -(y: models.CellExpression): models.CellExpression = y match {
+  def -(y: models.CalculatedValue): models.CalculatedValue = y match {
     case PositiveInteger(value) => PositiveInteger(int - value)
-    case _ => CalculatedError
+    case _ => NotCalculatedValue
   }
 
-  def *(y: models.CellExpression): models.CellExpression = y match {
+  def *(y: models.CalculatedValue): models.CalculatedValue = y match {
     case PositiveInteger(value) => PositiveInteger(int * value)
-    case _ => CalculatedError
+    case _ => NotCalculatedValue
   }
 
-  def /(y: models.CellExpression): models.CellExpression = y match {
+  def /(y: models.CalculatedValue): models.CalculatedValue = y match {
     case PositiveInteger(value) => PositiveInteger(int / value)
-    case _ => CalculatedError
+    case _ => NotCalculatedValue
   }
+
+  override def toCellExpression: models.CellExpression = this
 }
 
 case class Text(text: String) extends CellExpression
 
-case class CellReference(address: models.CellAddress) extends CellExpression {
-  def find(findFunc: findCellFunction) = {
-    findFunc(address).getCellResultValue(findFunc)
-  }
-}
+case class CellReference(address: models.CellAddress) extends CellExpression
 
-case class Expression(operation: Operation, leftTerm: CellExpression, rightTerm: CellExpression)
-  extends CellExpression {
-  def calc(findFunc: findCellFunction): models.CellExpression = this match {
-    case Expression(op, left: Calculated, right: Expression) =>
-      op.calc(left, right.calc(findFunc))
-    case Expression(op, x: Calculated, y) => op.calc(x, y)
-    case _ => CalculatedError
-  }
+case class Expression(operation: Operation, left: CellExpression, right: CellExpression) extends CellExpression {
+  def calc(findFunc: findCellFunction): CalculatedValue =
+    operation.calc(left.getCalculatedValue(findFunc), right.getCalculatedValue(findFunc))
 }

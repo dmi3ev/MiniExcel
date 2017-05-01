@@ -1,6 +1,6 @@
-package impls.func.errors
+package models
 
-trait FCellError {
+trait CellError {
   val message: String
 
   def getMessage: String = s"#$message"

@@ -13,9 +13,8 @@ object CellUserValueRegexParser {
 
     def nonNegativeNumber: Parser[PositiveInteger] = """\d+""".r ^^ { n => PositiveInteger(n.toInt) }
 
-    // TODO некоторые адреса ячеек недопустимые, например, A0
     def cellReference: Parser[CellReference] =
-      """[A-Za-z][0-9]""".r ^^ { r => CellReference(A1StyleAddress(r.toUpperCase)) }
+      """[A-Za-z][1-9]""".r ^^ { r => CellReference(A1StyleAddress(r.toUpperCase)) }
 
     val operationSign: Regex = """[+-\\*/]""".r
 
@@ -28,7 +27,6 @@ object CellUserValueRegexParser {
       case "/" => models.Div
     }
 
-    // TODO "printable character"
     def text: Parser[Text] = "'" ~> ".*".r ^^ { t => Text(t) }
 
     def expression: Parser[CellExpression] = term ~ rep(operation ~ term) ^^ {

@@ -36,4 +36,15 @@ class MiniExcelTest extends FunSuite {
     doTest("test3")
   }
 
+  test("test4") {
+    doTest("test4")
+  }
+
+  test("test5") {
+    doTest("test5")
+  }
+
+  test("test6") {
+    doTest("test6")
+  }
 }

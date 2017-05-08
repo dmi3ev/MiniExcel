@@ -15,7 +15,7 @@ class ExpressionSpreadSheetTest extends FunSuite {
   private val row2: Row[models.CellExpression] = Iterable(
     CellExpression(CellUserValue("=B1*C1+3*D1")),
     CellExpression(CellUserValue("2")),
-    CellExpression(CellUserValue("3")),
+    CellExpression(CellUserValue("=C2")),
     CellExpression(CellUserValue("=A2+C1/5"))
   )
 
@@ -78,6 +78,13 @@ class ExpressionSpreadSheetTest extends FunSuite {
   test("result in cell D2") {
     assertResult(IntResult(9)) {
       val exp = spreadsheet findCell A1StyleAddress("D2")
+      exp getCellResultValue spreadsheet.findCell
+    }
+  }
+
+  test("find cell C2") {
+    assertResult(ErrorResult(CircularReferenceError.message)) {
+      val exp = spreadsheet findCell A1StyleAddress("C2")
       exp getCellResultValue spreadsheet.findCell
     }
   }
